@@ -3,6 +3,8 @@ from dotenv import load_dotenv
 from openai import OpenAI
 import traceback
 import json  # Add this import
+import yaml
+from utils.wfrunner import run_workflow  # new import
 load_dotenv()
 api_key = os.getenv("OPENAI_API_KEY")
 client = OpenAI(api_key=api_key)
@@ -145,8 +147,46 @@ def calculate_sum(a: str) -> float:
         The sum of a and b
     """
 
+    result = call_wf_runner("/workspaces/argoagent/argo-math-service.yaml", a)
 
-    return f"fyay {a}"
+    return result
+
+def call_wf_runner(wf_yaml_file: str, new_expression: str, namespace: str = "argo"):
+    """
+    Reads the workflow YAML from a file, updates the 'expression' parameter,
+    and calls run_workflow.
+    
+    Args:
+        wf_yaml_file: File path to the workflow YAML definition.
+        new_expression: New value for the 'expression' parameter.
+        namespace: Kubernetes namespace (default: "argo")
+        
+    Returns:
+        The workflow object returned by run_workflow.
+    """
+    with open(wf_yaml_file, "r") as f:
+        workflow_yaml = f.read()
+    # Parse YAML and update the 'expression' parameter
+    workflow_dict = yaml.safe_load(workflow_yaml)
+    for param in workflow_dict.get("spec", {}).get("arguments", {}).get("parameters", []):
+        if param.get("name") == "expression":
+            param["value"] = new_expression
+    updated_yaml = yaml.safe_dump(workflow_dict)
+    wfresult = run_workflow(updated_yaml, namespace)
+    status = wfresult.status
+    if status.phase in ["Succeeded", "Failed", "Error"]:
+        # Print workflow outputs
+        print("\nNode Outputs:")
+        for node_id, node in status.nodes.items():
+            if node.outputs:
+                print(f"\nNode: {node_id}")
+                for param in node.outputs.parameters or []:
+                    print(f"Parameter {param.name}: {param.value}")
+                    return param.value
+                for artifact in node.outputs.artifacts or []:
+                    print(f"Artifact {artifact.name}: {artifact.s3.key if artifact.s3 else 'N/A'}")
+    else:
+        print("No outputs found in the workflow.")
 
 if __name__ == "__main__":
     # Example usage of send_to_openai
