@@ -1,0 +1,52 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Workflow
+metadata:
+  generateName: hello-world-
+  labels:
+    workflows.argoproj.io/archive-strategy: "false"
+  annotations:
+    workflows.argoproj.io/description: |
+      This is a two-step workflow that demonstrates data passing between containers.
+spec:
+  entrypoint: two-step-example
+  templates:
+  - name: two-step-example
+    steps:
+    - - name: generate-message
+        template: generate
+    - - name: print-message
+        template: print
+        arguments:
+          parameters:
+          - name: message
+            value: "{{steps.generate-message.outputs.parameters.generated-message}}"
+
+  - name: generate
+    outputs:
+      parameters:
+      - name: generated-message
+        valueFrom:
+          path: /tmp/message.txt
+    container:
+      image: busybox
+      imagePullPolicy: IfNotPresent
+      command: [sh, -c]
+      args: ["echo 'Hello from step 1! Current time is '$(date) > /tmp/message.txt"]
+
+  - name: print
+    inputs:
+      parameters:
+      - name: message
+    outputs:
+      parameters:
+      - name: final-message
+        valueFrom:
+          path: /tmp/final.txt
+    container:
+      image: busybox
+      imagePullPolicy: IfNotPresent
+      command: [sh, -c]
+      args: 
+        - |
+          echo "Received message: {{inputs.parameters.message}}"
+          echo "Final message processed at $(date)" > /tmp/final.txt

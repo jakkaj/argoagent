@@ -1,0 +1,8 @@
+fastapi
+pydantic
+uvicorn
+numexpr
+hera
+pyyaml
+openai
+python-dotenv

@@ -1,0 +1,13 @@
+- Go devcontainer with zsh, docker outside of docker
+        "ghcr.io/devcontainers/features/docker-outside-of-docker:1": {},
+		"ghcr.io/devcontainers/features/kubectl-helm-minikube:1": {},
+		"ghcr.io/dhoeric/features/k9s:1": {},
+		"ghcr.io/rio/features/k3d:1": {}
+- Show how to change code prediction model and run up agent model
+- Use agent to add sample go app and makefile
+- Install argo
+- Run a test yaml (update makefiles etc)
+- Use agent to add sample python fastapi file that can parse and return maths problems using numexpr
+- add unit tests for that
+- Add restclient format file for it
+

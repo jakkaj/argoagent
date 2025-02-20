@@ -1,0 +1,39 @@
+### Test Addition with REST Client
+POST http://localhost:8000/solve
+Content-Type: application/json
+
+{
+    "problem": "2+2"
+}
+
+### Test Subtraction with REST Client
+POST http://localhost:8000/solve
+Content-Type: application/json
+
+{
+    "problem": "5-3"
+}
+
+### Test Multiplication with REST Client
+POST http://localhost:8000/solve
+Content-Type: application/json
+
+{
+    "problem": "4*6"
+}
+
+### Test Division with REST Client
+POST http://localhost:8000/solve
+Content-Type: application/json
+
+{
+    "problem": "10/2"
+}
+
+### Test Invalid Expression with REST Client
+POST http://localhost:8000/solve
+Content-Type: application/json
+
+{
+    "problem": "invalid_expression"
+}

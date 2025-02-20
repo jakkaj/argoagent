@@ -1,0 +1,15 @@
+FROM python:3.11-slim
+
+WORKDIR /app
+
+# Copy dependency file and install dependencies
+COPY requirements.txt ./
+RUN pip install --break-system-packages -r requirements.txt
+
+# Copy CLI tool file instead of the web service
+COPY tools/calc/math_cli.py ./math_cli.py
+
+EXPOSE 8000
+
+# Set default math expression as argument
+CMD ["python3", "./math_cli.py", "2+2"]

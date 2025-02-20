@@ -1,0 +1,26 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Workflow
+metadata:
+  generateName: math-cli-test-
+spec:
+  entrypoint: math-cli-test
+  arguments:
+    parameters:
+      - name: expression
+        value: "3+3"  # default value
+  templates:
+  - name: math-cli-test
+    inputs:
+      parameters:
+        - name: expression
+    container:
+      image: k3d-registry.localhost:5000/math_service:latest
+      imagePullPolicy: IfNotPresent
+      command: ["python3", "./math_cli.py"]
+      args:        
+        - "{{inputs.parameters.expression}}"  
+    outputs:
+      parameters:
+      - name: mathResult
+        valueFrom:
+          path: /tmp/outputs.txt
