@@ -1,0 +1,19 @@
+templates:
+  - name: math-cli-test
+    metadata:
+      annotations:
+        description: "Takes an input parameter that is in python numexpr format and returns the result"
+    inputs:
+      parameters:
+        - name: expression
+    container:
+      image: k3d-registry.localhost:5000/math_service:latest
+      imagePullPolicy: IfNotPresent
+      command: ["python3", "./math_cli.py"]
+      args:        
+        - "{{inputs.parameters.expression}}"  
+    outputs:
+      parameters:
+      - name: mathResult
+        valueFrom:
+          path: /tmp/outputs.txt
