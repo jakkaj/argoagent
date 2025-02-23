@@ -1,0 +1,61 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Workflow
+metadata:
+  generateName: full-sample-
+spec:
+  entrypoint: two-step-example
+  arguments:
+    parameters:
+      - name: intput_param
+        value: "Echuca"  # default value
+  templates:
+  - name: two-step-example
+    steps:
+    - - name: generate-wikitext
+        template: wikistep
+        arguments:
+          parameters:
+            - name: intput_param
+              value: "{{workflow.parameters.intput_param}}"
+    - - name: sumamrise-text
+        template: summarystep
+        arguments:
+          parameters:
+          - name: intput_param
+            value: "{{steps.generate-wikitext.outputs.parameters.stepResult}}"
+  - name: wikistep
+    inputs:
+      parameters:
+        - name: intput_param
+    container:
+      image: k3d-registry.localhost:5000/wikipedia_wf_step:latest
+      imagePullPolicy: IfNotPresent
+      command: ["python3", "./main.py"]
+      args:        
+        - "{{inputs.parameters.intput_param}}"  
+    outputs:
+      parameters:
+      - name: stepResult
+        valueFrom:
+          path: /tmp/output.txt
+  - name: summarystep
+    inputs:
+      parameters:
+        - name: intput_param
+    container:
+      image: k3d-registry.localhost:5000/summarise_wf_step:latest
+      imagePullPolicy: IfNotPresent
+      command: ["python3", "./main.py"]
+      args:        
+        - "{{inputs.parameters.intput_param}}"  
+      env:
+        - name: OPENAI_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: openai-api-key  # the name of your Kubernetes secret
+              key: OPENAI_API_KEY  # the key within that secret
+    outputs:
+      parameters:
+      - name: stepResult
+        valueFrom:
+          path: /tmp/output.txt

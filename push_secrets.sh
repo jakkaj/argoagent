@@ -19,6 +19,7 @@ fi
 
 # Create the Kubernetes secret using the OPENAI_API_KEY from the .env file
 kubectl create secret generic openai-api-key \
-  --from-literal=OPENAI_API_KEY="${OPENAI_API_KEY}"
+  --from-literal=OPENAI_API_KEY="${OPENAI_API_KEY}" \
+  --namespace argo
 
 echo "Kubernetes secret 'openai-api-key' created successfully."

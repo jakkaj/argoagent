@@ -1,17 +1,19 @@
 import datetime
 import os
 import wikipedia
+import sys
 
 def main():   
     name = "WikipediaSearch"
     # open /tmp/input.txt and read the first line
     input_var = "Bendigo, Victoria, Australia"
    
-    input_file = f"/temp/{name}_input.txt"
+    if len(sys.argv) == 2:
+        input_var = sys.argv[1]
 
-    if os.path.exists(input_file):
-        with open(input_file, "r") as f:
-            input_var = f.readline().strip() 
+    
+
+    print(f"Input text: {input_var}")
 
     print(f"Searching Wikipedia for: {input_var}")
 

@@ -1,16 +1,15 @@
 import datetime
-import os
+import sys
 
 def main():   
-    name = "DateThing"
-    # open /tmp/input.txt and read the first line
+    
     input_var = "no var detected"
-    input_file = f"/temp/{name}_input.txt"
-    if os.path.exists(input_file):
-        with open(input_file, "r") as f:
-            input_var = f.readline().strip() 
+    if len(sys.argv) == 2:
+        input_var = sys.argv[1]
 
-    print(f"First line of /tmp/input.txt: {input_var}")
+    
+
+    print(f"Input text: {input_var}")
 
     now = datetime.datetime.now()
     formatted_datetime = now.strftime("%Y-%m-%d %H:%M:%S")

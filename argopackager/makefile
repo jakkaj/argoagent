@@ -11,7 +11,15 @@ build: build_a build_b build_c
 
 
 
-run:
+run_summarise:
 	docker run -it --rm --env-file summarise_wf_step/.env k3d-registry.localhost:5000/summarise_wf_step
+
+run_wikipedia:
+	docker run -it --rm k3d-registry.localhost:5000/wikipedia_wf_step
+
+run_date:
+	docker run -it --rm  k3d-registry.localhost:5000/date_wf_step
+
+
 clean:
 	docker rmi $(IMAGE_NAME)

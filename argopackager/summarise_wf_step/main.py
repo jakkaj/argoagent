@@ -2,7 +2,7 @@
 import os
 
 import openai
-
+import sys
 def main():   
     name = "Summariser"
     # open /tmp/input.txt and read the first line
@@ -18,15 +18,11 @@ This command will return a JSON object containing a list of repositories availab
    
     
 
-    input_file = f"/temp/{name}_input.txt"
+    input_var = "no var detected"
+    if len(sys.argv) == 2:
+        input_var = sys.argv[1]
 
-    if os.path.exists(input_file):
-        with open(input_file, "r") as f:
-            input_var = f.readline().strip() 
-
-    if input_var == "":
-        print("No input variable detected")
-        return
+    
     
     openai.api_key = os.environ.get("OPENAI_API_KEY")
 
