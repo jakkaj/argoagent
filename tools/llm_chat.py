@@ -1,10 +1,11 @@
 import os
+import re
 from dotenv import load_dotenv
 from openai import OpenAI
 import traceback
 import json  # Add this import
 import yaml
-from templates.templateutil import get_templates
+from templates.templateutil import compose_templates, get_templates
 from utils.wfrunner import run_workflow  # new import
 load_dotenv()
 api_key = os.getenv("OPENAI_API_KEY")
@@ -217,7 +218,30 @@ def compose_wf(query):
 
     result = send_to_openai(prompt)
 
+    json_only = extract_json(result)
+    if json_only == None:
+        return "LLM did not return a valid JSON"
+
+    templates = list()
+
+    for step in json_only["steps"]:
+        # get the template
+        templates.append(step)
+        
+
+    param = json_only["param"]
+
+    composed = compose_templates(param, templates)
+    print (composed)
     return result
+
+def extract_json(text):
+    match = re.search(r'(\{.*\})', text, re.DOTALL)
+    if match:
+        json_str = match.group(1)
+        return json.loads(json_str)
+    else:
+        return None
 
 if __name__ == "__main__":
     # Example usage of send_to_openai
@@ -230,7 +254,14 @@ if __name__ == "__main__":
     # Sample tool usage with function calling
     try:
         #response_fc = send_to_openai_with_function_call("Please give me the square root of 2")
-        response_fc = compose_wf("Please find me information on Melbourne and summarise it")
-        print(f"Function calling response: {response_fc}")
+        #response_fc = compose_wf("Please find me information on Melbourne and summarise it")
+        #print(f"Function calling response: {response_fc}")
+
+        templates = list()
+        templates.append("template-wikistep.yaml")
+        templates.append("template-summarystep.yaml")
+
+        compose = compose_templates("Bendigo", templates)
+
     except Exception as e:
         print(f"Function calling error: {e}")
