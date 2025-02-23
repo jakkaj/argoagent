@@ -11,7 +11,17 @@ clean-k3d:
 
 cluster: clean-k3d
 	k3d registry create k3d-registry.localhost --port 5000 || true
-	k3d cluster create argoagent-cluster --api-port 6443 --servers 1 --agents 1 --registry-use k3d-registry.localhost:5000 --wait
+	k3d cluster create argoagent-cluster \
+		--api-port 6443 \
+		--servers 1 \
+		--agents 1 \
+		--registry-use k3d-registry.localhost:5000 \
+		--wait \
+		-p "2746:32746@server:0"
+	./install_argo.sh
+	kubectl patch service argo-server -n argo --patch '{"spec": {"type": "NodePort", "ports": [{"name": "web", "port": 2746, "targetPort": 2746, "nodePort": 32746}]}}'
+	echo "Argo server is available at https://localhost:2746"
+	./push_secrets.sh
 
 up: cluster
 	@echo "Cluster created, starting application..."
