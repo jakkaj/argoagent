@@ -97,7 +97,7 @@ def send_to_openai_with_function_call(
                     "properties": {
                         "prompt": {"type": "string", "description": "A python numexpr expression"},                      
                     },
-                    "required": ["prompt"]
+                    "required": ["a", "b"]
                 }
             }],
             function_call="auto",
