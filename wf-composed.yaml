@@ -1,0 +1,61 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Workflow
+metadata:
+  generateName: full-sample-
+spec:
+  arguments:
+    parameters:
+    - name: intput_param
+      value: Bendigo
+  entrypoint: template-steps
+  templates:
+  - name: template-steps
+    steps:
+    - null
+    - null
+  - container:
+      args:
+      - '{{inputs.parameters.intput_param}}'
+      command:
+      - python3
+      - ./main.py
+      image: k3d-registry.localhost:5000/wikipedia_wf_step:latest
+      imagePullPolicy: IfNotPresent
+    inputs:
+      parameters:
+      - name: intput_param
+    metadata:
+      annotations:
+        description: Queries the Wikipedia API with a search query
+    name: wikistep
+    outputs:
+      parameters:
+      - name: stepResult
+        valueFrom:
+          path: /tmp/output.txt
+  - container:
+      args:
+      - '{{inputs.parameters.intput_param}}'
+      command:
+      - python3
+      - ./main.py
+      env:
+      - name: OPENAI_API_KEY
+        valueFrom:
+          secretKeyRef:
+            key: OPENAI_API_KEY
+            name: openai-api-key
+      image: k3d-registry.localhost:5000/summarise_wf_step:latest
+      imagePullPolicy: IfNotPresent
+    inputs:
+      parameters:
+      - name: intput_param
+    metadata:
+      annotations:
+        description: This summarises the input text using an LLM
+    name: summarystep
+    outputs:
+      parameters:
+      - name: stepResult
+        valueFrom:
+          path: /tmp/output.txt

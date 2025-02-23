@@ -6,3 +6,7 @@ hera
 pyyaml
 openai
 python-dotenv
+autogen-agentchat==0.4.7
+autogen-ext[openai,azure]==0.4.7
+autogen-ext[mcp]==0.4.7
+rich

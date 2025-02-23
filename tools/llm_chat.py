@@ -262,6 +262,6 @@ if __name__ == "__main__":
         templates.append("template-summarystep.yaml")
 
         compose = compose_templates("Bendigo", templates)
-
+        
     except Exception as e:
         print(f"Function calling error: {e}")
