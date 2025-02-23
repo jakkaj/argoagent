@@ -4,6 +4,7 @@ from openai import OpenAI
 import traceback
 import json  # Add this import
 import yaml
+from templates.templateutil import get_templates
 from utils.wfrunner import run_workflow  # new import
 load_dotenv()
 api_key = os.getenv("OPENAI_API_KEY")
@@ -188,6 +189,36 @@ def call_wf_runner(wf_yaml_file: str, new_expression: str, namespace: str = "arg
     else:
         print("No outputs found in the workflow.")
 
+def compose_wf(query):
+    wf_templates = get_templates()
+    print(wf_templates)
+
+    prompt = f"""
+    You have a list of templates to solve the query. These templates will allow you to compose a workflow to solve the query. 
+    The workflow will run all at once an you will get the final result, you will not get see intermediate results.
+    The query is: {query}
+    The templates are: {wf_templates}
+    You only need to provide a param to the outer template, each step does not need to be provided with a param.
+    
+    Example: you receive information on templates like this: [{{'filename': 'template-wikistep.yaml', 'description': 'Queries the Wikipedia API with a search query'}}, {{'filename': 'template-summarystep.yaml', 'description': 'This summarises the input text using an LLM'}}]
+    
+    Please compose it in this way. The example  here is "please find me information on Bendigo and summarise it"
+
+    {{
+    "param": "Bendigo",
+    "steps": [
+        "template-wikistep.yaml",
+        "template-summarystep.yaml"
+    ]
+    }}
+
+    **Only output the json data and nothing else. **
+    """
+
+    result = send_to_openai(prompt)
+
+    return result
+
 if __name__ == "__main__":
     # Example usage of send_to_openai
     # try:
@@ -198,7 +229,8 @@ if __name__ == "__main__":
 
     # Sample tool usage with function calling
     try:
-        response_fc = send_to_openai_with_function_call("Please give me the square root of 2")
+        #response_fc = send_to_openai_with_function_call("Please give me the square root of 2")
+        response_fc = compose_wf("Please find me information on Melbourne and summarise it")
         print(f"Function calling response: {response_fc}")
     except Exception as e:
         print(f"Function calling error: {e}")

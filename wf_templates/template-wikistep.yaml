@@ -1,0 +1,18 @@
+- name: wikistep
+  metadata:
+      annotations:
+        description: "Queries the Wikipedia API with a search query"
+  inputs:
+    parameters:
+      - name: intput_param
+  container:
+    image: k3d-registry.localhost:5000/wikipedia_wf_step:latest
+    imagePullPolicy: IfNotPresent
+    command: ["python3", "./main.py"]
+    args:        
+      - "{{inputs.parameters.intput_param}}"  
+  outputs:
+    parameters:
+    - name: stepResult
+      valueFrom:
+        path: /tmp/output.txt

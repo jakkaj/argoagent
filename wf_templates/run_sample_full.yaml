@@ -3,13 +3,13 @@ kind: Workflow
 metadata:
   generateName: full-sample-
 spec:
-  entrypoint: two-step-example
+  entrypoint: template-steps
   arguments:
     parameters:
       - name: intput_param
         value: "Echuca"  # default value
   templates:
-  - name: two-step-example
+  - name: template-steps
     steps:
     - - name: generate-wikitext
         template: wikistep
@@ -49,7 +49,7 @@ spec:
       args:        
         - "{{inputs.parameters.intput_param}}"  
       env:
-        - name: OPENAI_API_KEY
+        - name: OPENAI_API_KEY #there is a script in the root of the project to set this
           valueFrom:
             secretKeyRef:
               name: openai-api-key  # the name of your Kubernetes secret
