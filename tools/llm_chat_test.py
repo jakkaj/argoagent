@@ -6,17 +6,48 @@ import unittest
 from autogen_core import CancellationToken
 
 from templates.templateutil import compose_templates
-from argoagent.argoagent import get_run_artefacts_for_llm, save_run_artefacts_from_nodes_string
+from argoagent.argoagent import ArgoAgent, get_run_artefacts_for_llm, save_run_artefacts_from_nodes_string
 from argoagent.argorunner import ArgoSubmitConfigModel, print_mcp_tools
 from autogen_ext.tools.mcp import mcp_server_tools, StdioMcpToolAdapter, StdioServerParams
 
+from llm.llm_helper import LLMHelper
+
 class TestLLMChat(unittest.IsolatedAsyncioTestCase):
+    
+    async def test_agent(self):
+        
+        config_sample = """{
+            "name": "wikiagent",
+            "description": "Can search wikipedia for things.",
+            "templates":[
+                "wikistep",
+                "summarystep"
+            ]
+        }"""
+        
+        llm_client = LLMHelper("gpt-4o")
+
+        a = ArgoAgent(config_sample, llm_client)
+        await a.run_workflow("Find me information on teh planet pluto")
+        final_result = a.process_final_result()
+        print(final_result)
+        # a.set_query("Find me information on Perth, summarise it. ")
+        # print(a.ready_query)
+        # a.run_llm_compose_templates()
+        # #print(a.llm_selected_template_string)
+        # a.build_composed_templates()
+        # print(a.composed_templates)
+
+
     def test_template_build(self):
         templates = list()
         templates.append("template-wikistep.yaml")
         templates.append("template-summarystep.yaml")
 
         compose = compose_templates("Bendigo", templates)
+
+        # assert compose is not none
+        self.assertIsNotNone(compose)
 
     async def test_parsers(self):
         save_path = None

@@ -6,7 +6,7 @@ spec:
   arguments:
     parameters:
     - name: intput_param
-      value: Bendigo
+      value: Pluto (dwarf planet)
   entrypoint: template-steps
   templates:
   - name: template-steps
@@ -36,7 +36,8 @@ spec:
       - name: input_param
     metadata:
       annotations:
-        description: Queries the Wikipedia API with a search query
+        description: Queries the Wikipedia API with a search query. Include detailed
+          search terms to help disambigurate.
       displayName: Wikipedia Search
     name: wikistep
     outputs:

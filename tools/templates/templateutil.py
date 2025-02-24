@@ -31,7 +31,7 @@ def compose_templates(input_param, templates):
     composed_templates = []
 
     for template in all_templates:
-        if template['filename'] in templates:
+        if template['name'] in templates:
             composed_templates.append(template)
 
     root_template = None
@@ -80,12 +80,20 @@ def compose_templates(input_param, templates):
 
     output_path = os.path.join(os.path.dirname(__file__), './wf-composed.yaml')        
     with open(output_path, 'w') as file:
-        print(f"Writing template: {root_template}")  # Add debug print
+        #print(f"Writing template: {root_template}")  # Add debug print
         yaml.dump(root_template, file)
     
     yaml_str = yaml.dump(root_template)
 
     return yaml_str
+
+def get_templates_filtered_templates(filters):
+    templates = get_templates()
+    filtered_templates = []
+    for template in templates:
+        if any(filter in template['name'] for filter in filters):
+            filtered_templates.append(template)
+    return filtered_templates
 
 def get_templates():
     templates = []
@@ -100,8 +108,9 @@ def get_templates():
             with open(os.path.join(templates_dir, filename), 'r') as file:
                 template = yaml.safe_load(file)
                 for item in template:
+                    template_name = item.get('name')
                     description = item.get('metadata', {}).get('annotations', {}).get('description', 'No description available')
-                    templates.append({'filename': filename, 'description': description})
+                    templates.append({'filename': filename, 'description': description, 'name': template_name, 'template': item})
     
     #print(templates)
     return templates

@@ -2,7 +2,7 @@
   metadata:
     displayName: "Wikipedia Search"
     annotations:
-      description: "Queries the Wikipedia API with a search query"
+      description: "Queries the Wikipedia API with a search query. Include detailed search terms to help disambigurate."
   inputs:
     parameters:
       - name: input_param
