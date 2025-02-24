@@ -1,5 +1,6 @@
 - name: summarystep
   metadata:
+    displayName: "Content Summary"
     annotations:
       description: "This summarises the input text using an LLM"
   inputs:

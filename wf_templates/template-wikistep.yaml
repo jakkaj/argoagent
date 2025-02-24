@@ -1,7 +1,8 @@
 - name: wikistep
   metadata:
-      annotations:
-        description: "Queries the Wikipedia API with a search query"
+    displayName: "Wikipedia Search"
+    annotations:
+      description: "Queries the Wikipedia API with a search query"
   inputs:
     parameters:
       - name: input_param

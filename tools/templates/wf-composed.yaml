@@ -37,6 +37,7 @@ spec:
     metadata:
       annotations:
         description: Queries the Wikipedia API with a search query
+      displayName: Wikipedia Search
     name: wikistep
     outputs:
       parameters:
@@ -63,6 +64,7 @@ spec:
     metadata:
       annotations:
         description: This summarises the input text using an LLM
+      displayName: Content Summary
     name: summarystep
     outputs:
       parameters:
