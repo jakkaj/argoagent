@@ -52,3 +52,4 @@ env/
 output/
 /result.txt
 tools/outputs/
+wf-composed.yaml

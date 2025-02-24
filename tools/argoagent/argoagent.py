@@ -14,7 +14,8 @@ config_sample = {
     "templates":[
         "wikistep",
         "summarystep"
-    ]
+    ],
+    "extra_initial_prompt_instruction": "Don't summarise unless the user explicitly asks you to"
 }
 
 
@@ -23,6 +24,9 @@ class ArgoAgent:
     template_prompt = """
 You have a list of templates to solve the query. These templates will allow you to compose a workflow to solve the query. 
 The workflow will run all at once an you will get the final result, you will not get see intermediate results.
+
+{extra_initial_prompt_instruction}
+
 The query is: {query}
 The templates are:
 #### templates ####
@@ -67,6 +71,7 @@ However please only include the steps you need to precicely solve the users quer
         self.llm_template_string = ""
         self.name = None
         self.description = None
+        self.extra_initial_prompt_instruction = ""
 
         self.messages = list()
 
@@ -98,6 +103,9 @@ However please only include the steps you need to precicely solve the users quer
         self.name = parsed_config["name"]
         self.description = parsed_config["description"]
 
+        if "extra_initial_prompt_instruction" in parsed_config:
+            self.extra_initial_prompt_instruction = parsed_config["extra_initial_prompt_instruction"]
+
         #get the templates
         template_filters = parsed_config["templates"]
         self.templates = get_templates_filtered_templates(template_filters)
@@ -111,7 +119,9 @@ However please only include the steps you need to precicely solve the users quer
     def _set_query(self, query):
         self.ready_query = query
         
-        prompt = self.template_prompt.format(query=query, wf_templates=self.llm_template_string)
+        prompt = self.template_prompt.format(query=query, 
+                                             wf_templates=self.llm_template_string,
+                                             extra_initial_prompt_instruction=self.extra_initial_prompt_instruction)
     
         self.ready_query = prompt
 

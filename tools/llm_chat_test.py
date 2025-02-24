@@ -22,7 +22,8 @@ class TestLLMChat(unittest.IsolatedAsyncioTestCase):
             "templates":[
                 "wikistep",
                 "summarystep"
-            ]
+            ],
+            "extra_initial_prompt_instruction": "Don't summarise unless the user explicitly asks you to"
         }"""
         
         llm_client = LLMHelper("gpt-4o")
