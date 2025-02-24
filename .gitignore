@@ -48,3 +48,6 @@ env/
 *.swp
 *.log
 *.tmp
+
+output/
+/result.txt
