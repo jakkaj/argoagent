@@ -176,7 +176,7 @@ However please only include the steps you need to precicely solve the users quer
             #f.write(f"{item.text}\n")
             if item.text.startswith("{"):
                 self.save_run_artefacts_from_nodes_string(save_path, item.text) 
-                llm_text = get_run_artefacts_for_llm(item.text)
+                llm_text = self.get_run_artefacts_for_llm(item.text)
                 self.result_for_llm = llm_text
     
     def process_final_result(self):
@@ -194,45 +194,45 @@ Reminder, initial query was: {self.ready_query}
         self.final_result = result
         return self.final_result
 
-def get_run_artefacts_for_llm(string_nodes):
-    # parse string_nodes to json
-    nodes = None
-    try:
-        nodes = json.loads(string_nodes)
-    except json.JSONDecodeError as e:
-        print(f"Error decoding JSON: {e}")
-        return
-    artefacts = ""
-    for node in nodes["nodes"]:
-        node_name = node["templateName"]
-        for param in node["parameters"]:            
-            param_value = param["value"]
-            artefacts += f"\n###Output from {node_name}\n{param_value}\n\n"
-    return artefacts
+    def get_run_artefacts_for_llm(self, string_nodes):
+        # parse string_nodes to json
+        nodes = None
+        try:
+            nodes = json.loads(string_nodes)
+        except json.JSONDecodeError as e:
+            print(f"Error decoding JSON: {e}")
+            return
+        artefacts = ""
+        for node in nodes["nodes"]:
+            node_name = node["templateName"]
+            for param in node["parameters"]:            
+                param_value = param["value"]
+                artefacts += f"\n###Output from {node_name}\n{param_value}\n\n"
+        return artefacts
 
-def save_run_artefacts_from_nodes_string(self, path, string_nodes):
-    # parse string_nodes to json
-    nodes = None
-    try:
-        nodes = json.loads(string_nodes)
-    except json.JSONDecodeError as e:
-        print(f"Error decoding JSON: {e}")
-        return
-    
-    wrote_files = list()
+    def save_run_artefacts_from_nodes_string(self, path, string_nodes):
+        # parse string_nodes to json
+        nodes = None
+        try:
+            nodes = json.loads(string_nodes)
+        except json.JSONDecodeError as e:
+            print(f"Error decoding JSON: {e}")
+            return
+        
+        wrote_files = list()
 
-    for node in nodes["nodes"]:
-        node_name = node["templateName"]
-        for param in node["parameters"]:
-            param_name = param["name"]
-            param_value = param["value"]
-            file_path = os.path.join(path, f"{node_name}_{param_name}_output.txt")
-            #get parent of file_path
-            #parent_dir = os.path.dirname(file_path)
-            # create the directory if it does not exist
-            os.makedirs(os.path.dirname(file_path), exist_ok=True)
-            # write the file
-            with open(file_path, "w") as f:
-                f.write(param_value)
-            wrote_files.append(file_path)
-    self.workflow_output_files = wrote_files
+        for node in nodes["nodes"]:
+            node_name = node["templateName"]
+            for param in node["parameters"]:
+                param_name = param["name"]
+                param_value = param["value"]
+                file_path = os.path.join(path, f"{node_name}_{param_name}_output.txt")
+                #get parent of file_path
+                #parent_dir = os.path.dirname(file_path)
+                # create the directory if it does not exist
+                os.makedirs(os.path.dirname(file_path), exist_ok=True)
+                # write the file
+                with open(file_path, "w") as f:
+                    f.write(param_value)
+                wrote_files.append(file_path)
+        self.workflow_output_files = wrote_files

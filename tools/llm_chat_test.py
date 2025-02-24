@@ -6,17 +6,21 @@ import unittest
 from autogen_core import CancellationToken
 
 from templates.templateutil import compose_templates
-from argoagent.argoagent import ArgoAgent, get_run_artefacts_for_llm, save_run_artefacts_from_nodes_string
+from argoagent.argoagent import ArgoAgent
 from argoagent.argorunner import ArgoSubmitConfigModel, print_mcp_tools
 from autogen_ext.tools.mcp import mcp_server_tools, StdioMcpToolAdapter, StdioServerParams
 
 from llm.llm_helper import LLMHelper
+from argoagent.argoagent_datasets import AgentRunsDataset
+
+##### These are not really tests, they are more helpers to build the code #####
+
 
 class TestLLMChat(unittest.IsolatedAsyncioTestCase):
     
-    async def test_agent(self):
-        
-        config_sample = """{
+
+    def setUp(self):
+        self.config_sample = """{
             "name": "wikiagent",
             "description": "Can search wikipedia for things.",
             "templates":[
@@ -25,13 +29,35 @@ class TestLLMChat(unittest.IsolatedAsyncioTestCase):
             ],
             "extra_initial_prompt_instruction": "Don't summarise unless the user explicitly asks you to"
         }"""
+    
+    async def test_build_test_dataset(self):
+        
+        json_data = None
+        with open (os.path.join(os.path.dirname(__file__), 'argoagent', 'test_data', 'agent_runs_dataset.json'), 'r') as f:
+            json_data = f.read()
+
+        input_test_dataset = AgentRunsDataset.from_json(json_data)
         
         llm_client = LLMHelper("gpt-4o")
 
-        a = ArgoAgent(config_sample, llm_client)
+        a = ArgoAgent(self.config_sample, llm_client)
+
+        a._set_query("Find me information on Perth")
+        a._run_llm_compose_templates()
+        a._build_composed_templates()
+        print(a.llm_selected_template_string)
+
+    async def test_agent(self):
+        
+       
+        
+        llm_client = LLMHelper("gpt-4o")
+
+        a = ArgoAgent(self.config_sample, llm_client)
         await a.run_workflow("Find me information on teh planet pluto")
         final_result = a.process_final_result()
         print(final_result)
+        print(a.workflow_output_files)
         # a.set_query("Find me information on Perth, summarise it. ")
         # print(a.ready_query)
         # a.run_llm_compose_templates()
@@ -50,31 +76,13 @@ class TestLLMChat(unittest.IsolatedAsyncioTestCase):
         # assert compose is not none
         self.assertIsNotNone(compose)
 
-    async def test_parsers(self):
-        save_path = None
-        test_data_path = os.path.join(os.path.dirname(__file__), 'test_data')
-        
-        res4 = None
-        with open(os.path.join(test_data_path, "res4.pkl"), "rb") as f:
-            res4 = pickle.load(f)
-
-        
-        for item in res4:
-            if save_path is None:
-                save_path = os.path.join(os.path.dirname(__file__), '../outputs', item.text)
-            #print(f"Item: {item.text}")
-            #f.write(f"{item.text}\n")
-            if item.text.startswith("{"):
-                save_run_artefacts_from_nodes_string(save_path, item.text) 
-                llm_text = get_run_artefacts_for_llm(item.text)
-                print(llm_text)
-                    
+   
 
 
     async def test_wf_run(self):
         templates = list()
-        templates.append("template-wikistep.yaml")
-        templates.append("template-summarystep.yaml")
+        templates.append("wikistep")
+        templates.append("summarystep")
 
         compose = compose_templates("Bendigo", templates)
 
