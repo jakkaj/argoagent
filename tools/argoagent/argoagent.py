@@ -89,6 +89,8 @@ However please only include the steps you need to precicely solve the users quer
 
         self.final_result = None
 
+        self.workflow_output_files = None
+
         self.setup()        
     
     def setup(self):
@@ -173,7 +175,7 @@ However please only include the steps you need to precicely solve the users quer
             #print(f"Item: {item.text}")
             #f.write(f"{item.text}\n")
             if item.text.startswith("{"):
-                save_run_artefacts_from_nodes_string(save_path, item.text) 
+                self.save_run_artefacts_from_nodes_string(save_path, item.text) 
                 llm_text = get_run_artefacts_for_llm(item.text)
                 self.result_for_llm = llm_text
     
@@ -208,7 +210,7 @@ def get_run_artefacts_for_llm(string_nodes):
             artefacts += f"\n###Output from {node_name}\n{param_value}\n\n"
     return artefacts
 
-def save_run_artefacts_from_nodes_string(path, string_nodes):
+def save_run_artefacts_from_nodes_string(self, path, string_nodes):
     # parse string_nodes to json
     nodes = None
     try:
@@ -216,6 +218,9 @@ def save_run_artefacts_from_nodes_string(path, string_nodes):
     except json.JSONDecodeError as e:
         print(f"Error decoding JSON: {e}")
         return
+    
+    wrote_files = list()
+
     for node in nodes["nodes"]:
         node_name = node["templateName"]
         for param in node["parameters"]:
@@ -229,3 +234,5 @@ def save_run_artefacts_from_nodes_string(path, string_nodes):
             # write the file
             with open(file_path, "w") as f:
                 f.write(param_value)
+            wrote_files.append(file_path)
+    self.workflow_output_files = wrote_files
