@@ -27,9 +27,9 @@ class TestLLMChat(unittest.IsolatedAsyncioTestCase):
                 "wikistep",
                 "summarystep",
                 "extractstatsstep",
-                "writeapoem"
+                "writeapoemstep"
             ],
-            "extra_initial_prompt_instruction": "Don't summarise unless the user explicitly asks you to. Don't extract statistics unless the user explicitly asks you to. Don't write a poem unless th user explicitly asks you to. "
+            "extra_initial_prompt_instruction": "You should always start with wikipedia. Don't summarise unless the user explicitly asks you to. Don't extract statistics unless the user explicitly asks you to. Don't write a poem unless th user explicitly asks you to. "
         }"""
     
     async def test_build_test_dataset(self):
@@ -65,9 +65,7 @@ class TestLLMChat(unittest.IsolatedAsyncioTestCase):
         llm_client = LLMHelper("gpt-4o")
 
         a = ArgoAgent(self.config_sample, llm_client)
-        await a.run_workflow("""
-Find me information on the city of Bendigo in Victoria, Australia
-then write a poem about it.""")
+        await a.run_workflow("Find me information on the city of Bendigo in Victoria, Australia\nthen write a poem about it.")
         final_result = a.process_final_result()
         print(final_result)
         print(a.workflow_output_files)

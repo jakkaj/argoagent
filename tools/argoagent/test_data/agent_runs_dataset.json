@@ -24,11 +24,11 @@
         ]
     },
     {
-        "input_data": "Find me information on Bendigo, then write a poem about it.",
+        "input_data": "Find me information on the city of Bendigo in Victoria, Australia\nthen write a poem about it.",
         "param": "Bendigo",
         "steps": [
             "wikistep",
-            "writeapoem"
+            "writeapoemstep"
         ]
     }
 ]

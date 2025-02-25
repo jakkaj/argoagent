@@ -1,4 +1,4 @@
-- name: writeapoem
+- name: writeapoemstep
   metadata:
     displayName: "Write a poem"
     annotations:

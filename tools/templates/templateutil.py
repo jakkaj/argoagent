@@ -30,10 +30,11 @@ def compose_templates(input_param, templates):
 
     composed_templates = []
 
-    for template in all_templates:
-        if template['name'] in templates:
-            composed_templates.append(template)
-
+    for template in templates:
+        for existing_template in all_templates:
+            if existing_template['name'] == template:
+                composed_templates.append(existing_template)
+      
     root_template = None
 
     with open(os.path.join(os.path.dirname(__file__), '../../wf_templates/wf-template.yaml'), 'r') as file:
