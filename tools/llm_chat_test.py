@@ -25,9 +25,10 @@ class TestLLMChat(unittest.IsolatedAsyncioTestCase):
             "description": "Can search wikipedia for things.",
             "templates":[
                 "wikistep",
-                "summarystep"
+                "summarystep",
+                "extractstatsstep"
             ],
-            "extra_initial_prompt_instruction": "Don't summarise unless the user explicitly asks you to"
+            "extra_initial_prompt_instruction": "Don't summarise unless the user explicitly asks you to. Don't extract statistics unless the user explicitly asks you to."
         }"""
     
     async def test_build_test_dataset(self):
@@ -36,25 +37,37 @@ class TestLLMChat(unittest.IsolatedAsyncioTestCase):
         with open (os.path.join(os.path.dirname(__file__), 'argoagent', 'test_data', 'agent_runs_dataset.json'), 'r') as f:
             json_data = f.read()
 
-        input_test_dataset = AgentRunsDataset.from_json(json_data)
-        
         llm_client = LLMHelper("gpt-4o")
 
-        a = ArgoAgent(self.config_sample, llm_client)
+        input_test_dataset = AgentRunsDataset.from_json(json_data)      
 
-        a._set_query("Find me information on Perth")
-        a._run_llm_compose_templates()
-        a._build_composed_templates()
-        print(a.llm_selected_template_string)
 
+        for t_run in input_test_dataset:
+            a = ArgoAgent(self.config_sample, llm_client)
+
+            a._set_query(t_run.input_data)
+            a._run_llm_compose_templates()
+            a._build_composed_templates()
+            t_run.argo_agent = a
+
+        for t_run in input_test_dataset:
+            a = t_run.argo_agent
+            print(t_run.steps)
+            print(a.template_to_compose)
+            assert t_run.steps == a.template_to_compose
+            
+            
+        
+        
     async def test_agent(self):
         
-       
-        
         llm_client = LLMHelper("gpt-4o")
 
         a = ArgoAgent(self.config_sample, llm_client)
-        await a.run_workflow("Find me information on teh planet pluto")
+        await a.run_workflow("""
+Find me information on the city of Bendigo in Victoria, Australia, 
+then extract the summary and then extract the statistics
+""")
         final_result = a.process_final_result()
         print(final_result)
         print(a.workflow_output_files)

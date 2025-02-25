@@ -81,6 +81,7 @@ However please only include the steps you need to precicely solve the users quer
 
         ## composing
         self.llm_selected_template_string = None
+        self.template_to_compose = None
         self.composed_templates = None
 
         ## running
@@ -146,6 +147,7 @@ However please only include the steps you need to precicely solve the users quer
             # get the template
             templates.append(step)
             
+        self.template_to_compose = templates
 
         param = json_only["param"]
         self.composed_templates = compose_templates(param, templates)
@@ -180,6 +182,7 @@ However please only include the steps you need to precicely solve the users quer
                 self.result_for_llm = llm_text
     
     def process_final_result(self):
+        
         final_prompt = f"""
 We have the results back from the workflow> use them to answer the users initial query. 
 Reminder, initial query was: {self.ready_query}

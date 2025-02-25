@@ -1,10 +1,12 @@
 import json
+from argoagent.argoagent import ArgoAgent  # Assuming ArgoAgent is defined in argoagent module
 
 class AgentRunsDatasetEntry:
     def __init__(self, param, steps, input_data=None):
         self.param = param
         self.steps = steps
         self.input_data = input_data
+        self.argo_agent: ArgoAgent = None  # Declare argo_agent as a variable of type ArgoAgent
 
     @classmethod
     def from_dict(cls, data):

@@ -13,7 +13,7 @@ def main():
 
     print(f"Input text: {input_var}")
     print(f"Searching Wikipedia for: {input_var}")
-    
+    page = None
     try:
         page = wikipedia.page(input_var)
     except wikipedia.exceptions.DisambiguationError as e:

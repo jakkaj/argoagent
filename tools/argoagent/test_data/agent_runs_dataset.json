@@ -13,5 +13,14 @@
             "wikistep",
             "summarystep"
         ]
+    },
+    {
+        "input_data": "Find me information on Perth, summarise it and extract key statisctics",
+        "param": "Perth",
+        "steps": [
+            "wikistep",
+            "summarystep",
+            "extractstatsstep"
+        ]
     }
 ]

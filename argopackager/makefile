@@ -7,7 +7,10 @@ build_b:
 build_c:
 	./build_image.sh summarise_wf_step
 
-build: build_a build_b build_c
+build_d:
+	./build_image.sh extra_key_statistics_wf
+
+build: build_a build_b build_c build_d
 
 
 
