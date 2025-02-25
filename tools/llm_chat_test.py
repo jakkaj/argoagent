@@ -12,6 +12,7 @@ from autogen_ext.tools.mcp import mcp_server_tools, StdioMcpToolAdapter, StdioSe
 
 from llm.llm_helper import LLMHelper
 from argoagent.argoagent_datasets import AgentRunsDataset
+from ml.entailment import check_entailment
 
 ##### These are not really tests, they are more helpers to build the code #####
 
@@ -55,6 +56,11 @@ class TestLLMChat(unittest.IsolatedAsyncioTestCase):
             a = t_run.argo_agent
             print(t_run.steps)
             print(a.template_to_compose)
+
+            wf_input_param = a.wf_input_param
+            expected_param = t_run.param
+            entails, score = check_entailment(wf_input_param, expected_param)
+            assert entails
             assert t_run.steps == a.template_to_compose
             
             
@@ -65,16 +71,11 @@ class TestLLMChat(unittest.IsolatedAsyncioTestCase):
         llm_client = LLMHelper("gpt-4o")
 
         a = ArgoAgent(self.config_sample, llm_client)
-        await a.run_workflow("Find me information on the city of Bendigo in Victoria, Australia\nthen write a poem about it.")
+        await a.run_workflow("Find me information on the city of Bendigo in Victoria, Australia")
         final_result = a.process_final_result()
         print(final_result)
         print(a.workflow_output_files)
-        # a.set_query("Find me information on Perth, summarise it. ")
-        # print(a.ready_query)
-        # a.run_llm_compose_templates()
-        # #print(a.llm_selected_template_string)
-        # a.build_composed_templates()
-        # print(a.composed_templates)
+        
 
 
     def test_template_build(self):

@@ -3,6 +3,7 @@
     displayName: "Extract Statistics"
     annotations:
       description: "This extracts statistics from the input text using an LLM"
+      parallel: True
   inputs:
     parameters:
       - name: input_param

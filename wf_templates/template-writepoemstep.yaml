@@ -3,6 +3,7 @@
     displayName: "Write a poem"
     annotations:
       description: "This writes a poem of the input using an LLM"
+      parallel: True
   inputs:
     parameters:
       - name: input_param

@@ -25,6 +25,12 @@ def get_step_config(name, previous_step_name=None):
         new_step_json[0]["arguments"]["parameters"][0]["value"] = param_value
     return new_step_json
 
+def find_template_by_name(name, composed_templates):
+    for template in composed_templates:
+        if template.get('name') == name:
+            return template
+    return None
+
 def compose_templates(input_param, templates):
     all_templates = get_templates()
 
@@ -55,8 +61,8 @@ def compose_templates(input_param, templates):
     if template_steps is None:
         raise ValueError("Could not find 'template-steps' template")
     
-    prev_template_name = None
-    
+    prev_template_name = None    
+    last_parallel_step = None
     for composeitem in composed_templates:
         filename = composeitem['filename']
         template = None
@@ -75,9 +81,30 @@ def compose_templates(input_param, templates):
                 raise ValueError(f"Template {filename} does not have a name")
             root_template['spec']['templates'].append(subtemplate)
             step_config = get_step_config(template_name, prev_template_name)
-            template_steps.setdefault('steps', []).append(step_config)
+            
+            
+            
+            # find the composed template with the same name
+            composed_template = find_template_by_name(template_name, composed_templates)
 
-            prev_template_name = template_name
+            if composed_template is None:
+                raise ValueError(f"Could not find composed template with name {template_name}")
+            
+            is_parallel = composed_template.get("template", {}).get("metadata", {}).get("annotations", {}).get("parallel", False)
+
+            if is_parallel and template_steps.get("steps") != None:
+                if last_parallel_step != None:
+                    last_parallel_step.append(step_config[0])
+                else:
+                    template_steps.setdefault('steps', []).append(step_config)
+                last_parallel_step = template_steps["steps"][-1]
+            else:
+                template_steps.setdefault('steps', []).append(step_config)
+                last_parallel_step = None
+                prev_template_name = template_name
+                
+            
+            
 
     output_path = os.path.join(os.path.dirname(__file__), './wf-composed.yaml')        
     with open(output_path, 'w') as file:

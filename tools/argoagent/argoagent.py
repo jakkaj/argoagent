@@ -81,6 +81,7 @@ However please only include the steps you need to precicely solve the users quer
 
         ## composing
         self.llm_selected_template_string = None
+        self.wf_input_param = None
         self.template_to_compose = None
         self.composed_templates = None
 
@@ -150,7 +151,11 @@ However please only include the steps you need to precicely solve the users quer
         self.template_to_compose = templates
 
         param = json_only["param"]
+        self.wf_input_param = param
         self.composed_templates = compose_templates(param, templates)
+        # with open("composed_templates.json", "w") as f:
+        #     json.dump(self.composed_templates, f, indent=4)
+        print(self.composed_templates)
 
     async def run_workflow(self, query):
         self._set_query(query)

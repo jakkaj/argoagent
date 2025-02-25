@@ -1,0 +1,25 @@
+apiVersion: argoproj.io/v1alpha1\nkind: Workflow\nmetadata:\n  generateName: full-sample-\nspec:\n  arguments:\n    parameters:\n    - name: intput_param\n      value: Bendigo, Victoria, Australia\n  entrypoint: template-steps\n  templates:\n  - name: template-steps\n    steps:\n    - - arguments:\n          parameters:\n          - name: input_param\n            value: '{
+    {workflow.parameters.intput_param
+    }
+}'\n        name: step-wikistep\n        template: wikistep\n      - - arguments:\n            parameters:\n            - name: input_param\n              value: '{
+    {steps.step-wikistep.outputs.parameters.stepResult
+    }
+}'\n          name: step-summarystep\n          template: summarystep\n      - - arguments:\n            parameters:\n            - name: input_param\n              value: '{
+    {steps.step-summarystep.outputs.parameters.stepResult
+    }
+}'\n          name: step-extractstatsstep\n          template: extractstatsstep\n      - - arguments:\n            parameters:\n            - name: input_param\n              value: '{
+    {steps.step-extractstatsstep.outputs.parameters.stepResult
+    }
+}'\n          name: step-writeapoemstep\n          template: writeapoemstep\n  - container:\n      args:\n      - '{
+    {inputs.parameters.input_param
+    }
+}'\n      command:\n      - python3\n      - ./main.py\n      image: k3d-registry.localhost: 5000/wikipedia_wf_step:latest\n      imagePullPolicy: IfNotPresent\n    inputs:\n      parameters:\n      - name: input_param\n    metadata:\n      annotations:\n        description: Queries the Wikipedia API with a search query. Include detailed\n          search terms to help disambigurate.\n      displayName: Wikipedia Search\n    name: wikistep\n    outputs:\n      parameters:\n      - name: stepResult\n        valueFrom:\n          path: /tmp/output.txt\n  - container:\n      args:\n      - '{
+    {inputs.parameters.input_param
+    }
+}'\n      command:\n      - python3\n      - ./main.py\n      env:\n      - name: OPENAI_API_KEY\n        valueFrom:\n          secretKeyRef:\n            key: OPENAI_API_KEY\n            name: openai-api-key\n      image: k3d-registry.localhost: 5000/summarise_wf_step:latest\n      imagePullPolicy: IfNotPresent\n    inputs:\n      parameters:\n      - name: input_param\n    metadata:\n      annotations:\n        description: This summarises the input text using an LLM\n        parallel: true\n      displayName: Content Summary\n    name: summarystep\n    outputs:\n      parameters:\n      - name: stepResult\n        valueFrom:\n          path: /tmp/output.txt\n  - container:\n      args:\n      - '{
+    {inputs.parameters.input_param
+    }
+}'\n      command:\n      - python3\n      - ./main.py\n      env:\n      - name: OPENAI_API_KEY\n        valueFrom:\n          secretKeyRef:\n            key: OPENAI_API_KEY\n            name: openai-api-key\n      image: k3d-registry.localhost: 5000/extra_key_statistics_wf:latest\n      imagePullPolicy: IfNotPresent\n    inputs:\n      parameters:\n      - name: input_param\n    metadata:\n      annotations:\n        description: This extracts statistics from the input text using an LLM\n        parallel: true\n      displayName: Extract Statistics\n    name: extractstatsstep\n    outputs:\n      parameters:\n      - name: stepResult\n        valueFrom:\n          path: /tmp/output.txt\n  - container:\n      args:\n      - '{
+    {inputs.parameters.input_param
+    }
+}'\n      command:\n      - python3\n      - ./main.py\n      env:\n      - name: OPENAI_API_KEY\n        valueFrom:\n          secretKeyRef:\n            key: OPENAI_API_KEY\n            name: openai-api-key\n      image: k3d-registry.localhost: 5000/write_poem_wf_step:latest\n      imagePullPolicy: IfNotPresent\n    inputs:\n      parameters:\n      - name: input_param\n    metadata:\n      annotations:\n        description: This writes a poem of the input using an LLM\n        parallel: true\n      displayName: Write a poem\n    name: writeapoemstep\n    outputs:\n      parameters:\n      - name: stepResult\n        valueFrom:\n          path: /tmp/output.txt\n"

@@ -1,0 +1,143 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Workflow
+metadata:
+  generateName: full-sample-
+spec:
+  arguments:
+    parameters:
+    - name: intput_param
+      value: Bendigo, Victoria, Australia
+  entrypoint: template-steps
+  templates:
+  - name: template-steps
+    steps:
+    - - arguments:
+          parameters:
+          - name: input_param
+            value: '{{workflow.parameters.intput_param}}'
+        name: step-wikistep
+        template: wikistep
+      - - arguments:
+            parameters:
+            - name: input_param
+              value: '{{steps.step-wikistep.outputs.parameters.stepResult}}'
+          name: step-summarystep
+          template: summarystep
+      - - arguments:
+            parameters:
+            - name: input_param
+              value: '{{steps.step-summarystep.outputs.parameters.stepResult}}'
+          name: step-extractstatsstep
+          template: extractstatsstep
+      - - arguments:
+            parameters:
+            - name: input_param
+              value: '{{steps.step-extractstatsstep.outputs.parameters.stepResult}}'
+          name: step-writeapoemstep
+          template: writeapoemstep
+  - container:
+      args:
+      - '{{inputs.parameters.input_param}}'
+      command:
+      - python3
+      - ./main.py
+      image: k3d-registry.localhost:5000/wikipedia_wf_step:latest
+      imagePullPolicy: IfNotPresent
+    inputs:
+      parameters:
+      - name: input_param
+    metadata:
+      annotations:
+        description: Queries the Wikipedia API with a search query. Include detailed
+          search terms to help disambigurate.
+      displayName: Wikipedia Search
+    name: wikistep
+    outputs:
+      parameters:
+      - name: stepResult
+        valueFrom:
+          path: /tmp/output.txt
+  - container:
+      args:
+      - '{{inputs.parameters.input_param}}'
+      command:
+      - python3
+      - ./main.py
+      env:
+      - name: OPENAI_API_KEY
+        valueFrom:
+          secretKeyRef:
+            key: OPENAI_API_KEY
+            name: openai-api-key
+      image: k3d-registry.localhost:5000/summarise_wf_step:latest
+      imagePullPolicy: IfNotPresent
+    inputs:
+      parameters:
+      - name: input_param
+    metadata:
+      annotations:
+        description: This summarises the input text using an LLM
+        parallel: true
+      displayName: Content Summary
+    name: summarystep
+    outputs:
+      parameters:
+      - name: stepResult
+        valueFrom:
+          path: /tmp/output.txt
+  - container:
+      args:
+      - '{{inputs.parameters.input_param}}'
+      command:
+      - python3
+      - ./main.py
+      env:
+      - name: OPENAI_API_KEY
+        valueFrom:
+          secretKeyRef:
+            key: OPENAI_API_KEY
+            name: openai-api-key
+      image: k3d-registry.localhost:5000/extra_key_statistics_wf:latest
+      imagePullPolicy: IfNotPresent
+    inputs:
+      parameters:
+      - name: input_param
+    metadata:
+      annotations:
+        description: This extracts statistics from the input text using an LLM
+        parallel: true
+      displayName: Extract Statistics
+    name: extractstatsstep
+    outputs:
+      parameters:
+      - name: stepResult
+        valueFrom:
+          path: /tmp/output.txt
+  - container:
+      args:
+      - '{{inputs.parameters.input_param}}'
+      command:
+      - python3
+      - ./main.py
+      env:
+      - name: OPENAI_API_KEY
+        valueFrom:
+          secretKeyRef:
+            key: OPENAI_API_KEY
+            name: openai-api-key
+      image: k3d-registry.localhost:5000/write_poem_wf_step:latest
+      imagePullPolicy: IfNotPresent
+    inputs:
+      parameters:
+      - name: input_param
+    metadata:
+      annotations:
+        description: This writes a poem of the input using an LLM
+        parallel: true
+      displayName: Write a poem
+    name: writeapoemstep
+    outputs:
+      parameters:
+      - name: stepResult
+        valueFrom:
+          path: /tmp/output.txt
