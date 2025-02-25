@@ -1,0 +1,25 @@
+- name: writeapoem
+  metadata:
+    displayName: "Write a poem"
+    annotations:
+      description: "This writes a poem of the input using an LLM"
+  inputs:
+    parameters:
+      - name: input_param
+  container:
+    image: k3d-registry.localhost:5000/write_poem_wf_step:latest
+    imagePullPolicy: IfNotPresent
+    command: ["python3", "./main.py"]
+    args:        
+      - "{{inputs.parameters.input_param}}"  
+    env:
+      - name: OPENAI_API_KEY #there is a script in the root of the project to set this
+        valueFrom:
+          secretKeyRef:
+            name: openai-api-key  # the name of your Kubernetes secret
+            key: OPENAI_API_KEY  # the key within that secret
+  outputs:
+    parameters:
+    - name: stepResult
+      valueFrom:
+        path: /tmp/output.txt

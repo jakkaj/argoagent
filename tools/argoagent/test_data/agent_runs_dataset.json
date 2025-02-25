@@ -22,5 +22,13 @@
             "summarystep",
             "extractstatsstep"
         ]
+    },
+    {
+        "input_data": "Find me information on Bendigo, then write a poem about it.",
+        "param": "Bendigo",
+        "steps": [
+            "wikistep",
+            "writeapoem"
+        ]
     }
 ]
