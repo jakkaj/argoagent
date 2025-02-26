@@ -3,7 +3,7 @@
     displayName: "Content Summary"
     annotations:
       description: "This summarises the input text using an LLM"
-      parallel: True
+      parallel: False
   inputs:
     parameters:
       - name: input_param

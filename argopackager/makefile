@@ -13,7 +13,10 @@ build_d:
 build_e:
 	./build_image.sh write_poem_wf_step
 
-build: build_a build_b build_c build_d build_e
+build_f:
+	./build_image.sh aussify_wf_step
+
+build: build_a build_b build_c build_d build_e build_f
 
 
 

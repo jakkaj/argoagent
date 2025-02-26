@@ -1,14 +1,14 @@
-- name: writeapoemstep
+- name: aussifystep
   metadata:
-    displayName: "Write a poem"
+    displayName: "Aussify Content"
     annotations:
-      description: "This writes a poem of the input using an LLM"
-      parallel: False
+      description: "This can turn any text into Australian (Aussie) Slang"
+      parallel: True
   inputs:
     parameters:
       - name: input_param
   container:
-    image: k3d-registry.localhost:5000/write_poem_wf_step:latest
+    image: k3d-registry.localhost:5000/aussify_wf_step:latest
     imagePullPolicy: IfNotPresent
     command: ["python3", "./main.py"]
     args:        

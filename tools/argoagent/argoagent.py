@@ -87,6 +87,7 @@ However please only include the steps you need to precicely solve the users quer
 
         ## running
         self.argo_result = None
+        self.wf_id = None
         self.result_for_llm = None
 
         self.final_result = None
@@ -161,7 +162,7 @@ However please only include the steps you need to precicely solve the users quer
         self._set_query(query)
         self._run_llm_compose_templates()
         self._build_composed_templates()       
-
+        
         save_path = None
 
         argo_system_mcp_server = StdioServerParams(
@@ -175,7 +176,7 @@ However please only include the steps you need to precicely solve the users quer
         res4 = await argo_tools[0].run(argo_config_wait, token)
 
         self.argo_result = res4
-
+        self.wf_id = res4[0].text
         for item in res4:
             if save_path is None:
                 save_path = os.path.join(os.path.dirname(__file__), '../outputs', item.text)
