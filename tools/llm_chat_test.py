@@ -43,6 +43,8 @@ class TestLLMChat(unittest.IsolatedAsyncioTestCase):
 
         input_test_dataset = AgentRunsDataset.from_json(json_data)      
 
+        entails, score = check_entailment("The dog is white", "The house is a building")
+        assert not entails
 
         for t_run in input_test_dataset:
             a = ArgoAgent(self.config_sample, llm_client)
@@ -58,7 +60,7 @@ class TestLLMChat(unittest.IsolatedAsyncioTestCase):
             print(a.template_to_compose)
 
             wf_input_param = a.wf_input_param
-            expected_param = t_run.param
+            expected_param = t_run.param    
             entails, score = check_entailment(wf_input_param, expected_param)
             assert entails
             assert t_run.steps == a.template_to_compose
